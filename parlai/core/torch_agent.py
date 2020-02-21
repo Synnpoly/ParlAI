@@ -281,11 +281,14 @@ class History(object):
             return None
 
         if self.vec_type == 'deque':
+            # TODO : why are we here?
             history = deque(maxlen=self.max_len)
             for vec in self.history_vecs[:-1]:
                 history.extend(vec)
                 history.extend(self.delimiter_tok)
             history.extend(self.history_vecs[-1])
+            history.extend([self.dict[self.dict.start_token]])
+        # append an end token here.
         else:
             # vec type is a list
             history = []
@@ -293,6 +296,8 @@ class History(object):
                 history += vec
                 history += self.delimiter_tok
             history += self.history_vecs[-1]
+            # append an end token here.
+            history += [self.dict[self.dict.start_token]]
 
         return history
 
@@ -1283,10 +1288,7 @@ class TorchAgent(ABC, Agent):
         to pad their input.
         """
         return padded_tensor(
-            items,
-            pad_idx=self.NULL_IDX,
-            use_cuda=self.use_cuda,
-            fp16friendly=self.fp16,
+            items, pad_idx=self.NULL_IDX, use_cuda=self.use_cuda, fp16friendly=self.fp16
         )
 
     def is_valid(self, obs):
